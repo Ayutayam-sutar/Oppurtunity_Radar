@@ -69,4 +69,4 @@ export async function streamPortfolioAnalysis(question, portfolio, signals, onCh
     // Preserved your team's error handling
     onComplete("⚠️ Unable to connect to backend AI services. Our servers are currently waking up. Please try again in 30 seconds.");
   }
-}s
+}
