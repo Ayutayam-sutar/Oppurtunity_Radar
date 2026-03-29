@@ -1,6 +1,11 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth, GoogleAuthProvider } from 'firebase/auth'
 
+// HACKATHON SAFETY CHECK: Logs an error if keys are missing in production
+if (!import.meta.env.VITE_FIREBASE_API_KEY) {
+  console.error("❌ Firebase API Key is missing! Check Netlify Environment Variables.");
+}
+
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -13,4 +18,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 export const auth = getAuth(app)
 export const googleProvider = new GoogleAuthProvider()
+
+// Add this to ensure the provider always prompts for account selection
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
 export default app
