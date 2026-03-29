@@ -85,23 +85,6 @@ Powered by custom ResizeObserver logic
 Uses cached/mock data during network instability
 Ensures smooth live demo performance
 
-
-## File structure
-├── backend/                 # FastAPI Backend
-│   ├── alembic/             # DB migrations
-│   ├── app/
-│   │   ├── api/             # Routes (auth, signals, chat)
-│   │   ├── core/            # Config & security
-│   │   ├── models/          # SQLAlchemy models
-│   │   └── schemas/         # Pydantic schemas
-│
-├── src/                     # React Frontend
-│   ├── api/                 # API services (Claude, etc.)
-│   ├── components/          # UI components
-│   ├── pages/               # Main pages
-│
-└── vite.config.js           # Build config
-
 # Team members
 | Name                  | Role                     | Focus                       |
 | --------------------- | ------------------------ | --------------------------- |
