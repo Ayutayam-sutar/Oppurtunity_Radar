@@ -3,49 +3,38 @@ import { Scene1, Scene2, Scene3 } from '../components/video/VideoScenes'
 import { generateVideoScript } from '../api/videoScript'
 import { speak, stopSpeaking, preloadVoices } from '../utils/narrator'
 import { mockSignals } from '../data/mockSignals'
-
-// ─── Static market data for the demo ─────────────────────────────────────────
-// In production this would come from the live NSE API.
-// For the hackathon demo, this data is hardcoded to match the signal feed.
-
 const MARKET_DATA = {
   nifty:         22847,
   niftyChange:   1.23,
   sensex:        75210,
   sensexChange:  0.98,
-  topSignal:     mockSignals[0],   // TATAMOTORS from existing mock data
+  topSignal:     mockSignals[0],  
   fii:           2180,
   dii:           1640,
   mood:          'Bullish',
 }
 
-const SCENE_DURATION_MS = 5000   // 5 seconds per scene = 15 seconds total
-
-// ─── Main page component ──────────────────────────────────────────────────────
-
+const SCENE_DURATION_MS = 5000  
 export function MarketVideo() {
   const [status, setStatus]           = useState('idle')
-  // idle | generating | playing | done | error
+ 
   const [script, setScript]           = useState(null)
-  const [currentScene, setCurrentScene] = useState(0)   // 0 = nothing playing
+  const [currentScene, setCurrentScene] = useState(0)   
   const [error, setError]             = useState(null)
   const timerRef                      = useRef(null)
-
-  // Preload browser voices on mount (Chrome requires this)
   useEffect(() => {
     preloadVoices()
-    // Cleanup on unmount
     return () => {
       stopSpeaking()
       clearTimeout(timerRef.current)
     }
   }, [])
 
-  // ── Generate + play ──────────────────────────────────────────────────────
+  
 
   async function handleGenerate() {
-    // Stop anything currently playing
-    window.speechSynthesis.cancel() // This "unlocks" speech on first user interaction
+    
+    window.speechSynthesis.cancel() 
     stopSpeaking()
     clearTimeout(timerRef.current)
 
@@ -67,7 +56,7 @@ export function MarketVideo() {
 
   function startScene(sceneNumber, scriptData) {
     if (sceneNumber > 3) {
-      // All scenes done
+   
       setStatus('done')
       setCurrentScene(0)
       return
@@ -77,14 +66,8 @@ export function MarketVideo() {
 
     const lines = [scriptData.scene1, scriptData.scene2, scriptData.scene3]
     const text = lines[sceneNumber - 1] || ''
-
-    // Speak the narration for this scene
-    // Web Speech API — completely free, built into browser
     speak(text, null, null)
 
-    // Advance to next scene after SCENE_DURATION_MS
-    // We use a fixed timer rather than relying on speech end events
-    // because browser speech timing varies and we want reliable scene sync.
     timerRef.current = setTimeout(() => {
       startScene(sceneNumber + 1, scriptData)
     }, SCENE_DURATION_MS)
@@ -105,7 +88,7 @@ export function MarketVideo() {
     startScene(1, script)
   }
 
-  // ── Scene data objects ───────────────────────────────────────────────────
+
 
   const scene1Data = {
     nifty:        MARKET_DATA.nifty,
@@ -116,7 +99,7 @@ export function MarketVideo() {
   const scene2Data = { signal: MARKET_DATA.topSignal }
   const scene3Data = { fii: MARKET_DATA.fii, dii: MARKET_DATA.dii }
 
-  // ── Render ───────────────────────────────────────────────────────────────
+
 
   return (
     <div className="market-video-container">
@@ -186,7 +169,7 @@ export function MarketVideo() {
                 { n: 3, label: 'FII/DII\nFlows' },
               ].map(({ n, label }) => (
                 <div key={n} style={{ flex: 1, textAlign: 'center' }}>
-                  {/* Dot */}
+    
                   <div style={{
                     width: 10, height: 10, borderRadius: '50%', margin: '0 auto 6px',
                     background: currentScene === n
@@ -197,7 +180,7 @@ export function MarketVideo() {
                     boxShadow: currentScene === n ? '0 0 10px rgba(245,166,35,0.6)' : 'none',
                     transition: 'all 0.3s',
                   }} />
-                  {/* Label */}
+              
                   <div style={{
                     color: currentScene === n ? '#F5A623' : '#5A5A72',
                     fontSize: 10, fontFamily: "'JetBrains Mono', monospace",

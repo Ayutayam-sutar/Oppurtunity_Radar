@@ -19,7 +19,7 @@ function Section({ children, className = '', style = {} }) {
 export default function LandingPage() {
   const { theme, toggleTheme } = useTheme()
   const [sipAmount, setSipAmount] = useState(7100)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false) // New State
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false) 
 
   const years = 25
   const rate = 0.12

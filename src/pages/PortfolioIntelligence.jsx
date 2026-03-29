@@ -16,15 +16,14 @@ const suggestedQuestions = [
 ]
 
 export default function PortfolioIntelligence() {
-  // 1. Get Context with a safety check
   const context = useAppContext()
   
-  // If context is not yet available, return null to prevent destructuring errors
+ 
   if (!context) return null;
 
   const { portfolio, setPortfolio, watchlist, addToWatchlist, removeFromWatchlist } = context
 
-  // 2. State definitions (Renamed 'personalizedSignals' to 'signalsData' to prevent minifier 's' conflicts)
+
   const [newStock, setNewStock] = useState({ ticker: '', qty: '', price: '' })
   const [signalsData, setSignalsData] = useState({ relevant: [], watchlist: [] })
   const [chatHistory, setChatHistory] = useState([])
@@ -62,13 +61,13 @@ export default function PortfolioIntelligence() {
     setChatInput('')
     setIsTyping(true)
     
-    // Add empty placeholder for AI response
+
     setChatHistory(prev => [...prev, { role: 'ai', text: '', citations: [] }])
     
     await streamPortfolioAnalysis(
       q,
       portfolio,
-      signalsData.relevant, // Updated reference
+      signalsData.relevant, 
       (chunk) => {
         setIsTyping(false)
         setChatHistory(prev => {

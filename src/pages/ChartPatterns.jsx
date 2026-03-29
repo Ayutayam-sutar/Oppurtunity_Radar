@@ -37,7 +37,7 @@ export default function ChartPatterns() {
   const [timeRange, setTimeRange] = useState('3m')
   const [overlays, setOverlays] = useState({ rsi: true, macd: true, bollinger: true, volume: true })
   const [chartDimensions, setChartDimensions] = useState({ width: 800, height: 400 })
-  const [chartData, setChartData] = useState([]) // State added to store data for jumping to dates
+  const [chartData, setChartData] = useState([]) 
 
   const chartRef = useRef(null)
   const chartInstance = useRef(null)
@@ -51,7 +51,6 @@ export default function ChartPatterns() {
     let chart, candleSeries
     const initChart = async () => {
       try {
-        // Updated imports for lightweight-charts v5.0+
         const { createChart, CandlestickSeries, HistogramSeries, LineSeries } = await import('lightweight-charts')
         
         if (!chartRef.current) return
@@ -66,8 +65,6 @@ export default function ChartPatterns() {
           timeScale: { borderColor: 'rgba(255,255,255,0.06)', timeVisible: false },
           rightPriceScale: { borderColor: 'rgba(255,255,255,0.06)' }
         })
-        
-        // Updated API for candlestick series
         candleSeries = chart.addSeries(CandlestickSeries, {
           upColor: '#00E676', downColor: '#FF5252', borderUpColor: '#00E676', borderDownColor: '#FF5252',
           wickUpColor: '#00E676', wickDownColor: '#FF5252'
@@ -75,17 +72,13 @@ export default function ChartPatterns() {
         
         const days = { '1w': 7, '1m': 30, '3m': 90, '6m': 180, '1y': 365 }[timeRange] || 90
         const data = generateOHLCVData(days)
-        
-        // Save the generated data to state so our jump button can find it
+
         setChartData(data)
-        
-        // Animate data draw-in
         for (let i = 0; i < data.length; i++) {
           setTimeout(() => { try { candleSeries.update(data[i]) } catch(e) {} }, i * 5)
         }
 
         if (overlays.volume) {
-          // Updated API for volume histogram
           const volSeries = chart.addSeries(HistogramSeries, {
             priceFormat: { type: 'volume' },
             priceScaleId: 'volume',
@@ -95,7 +88,6 @@ export default function ChartPatterns() {
         }
 
         if (overlays.bollinger) {
-          // Updated API for bollinger lines
           const upper = chart.addSeries(LineSeries, { color: 'rgba(77,150,255,0.4)', lineWidth: 1, lineStyle: 2 })
           const lower = chart.addSeries(LineSeries, { color: 'rgba(77,150,255,0.4)', lineWidth: 1, lineStyle: 2 })
           upper.setData(data.map(d => ({ time: d.time, value: d.high * 1.02 })))
@@ -120,28 +112,26 @@ export default function ChartPatterns() {
     return () => { if (chart) { try { chart.remove() } catch(e) {} } }
   }, [selected, timeRange, overlays])
 
-  // New function to dynamically calculate how far back to scroll
   const jumpToTargetDate = (dateStr, fallbackIndex) => {
     if (!chartInstance.current || !chartData.length) return;
 
-    // Convert string like "Mar 14, 2026" to "2026-03-14" format
     const target = new Date(dateStr);
     const yyyy = target.getFullYear();
     const mm = String(target.getMonth() + 1).padStart(2, '0');
     const dd = String(target.getDate()).padStart(2, '0');
     const formattedDate = `${yyyy}-${mm}-${dd}`;
 
-    // Find where this date lives in our array
+
     const dataIndex = chartData.findIndex(d => 
       d.time === formattedDate || d.time === target.getTime() / 1000
     );
 
     if (dataIndex !== -1) {
-      // Calculate index relative to the right edge. +15 offsets it nicely from the wall.
+    
       const offset = dataIndex - chartData.length + 15; 
       chartInstance.current.timeScale().scrollToPosition(offset, true);
     } else {
-      // Fallback if date isn't in mock data
+     
       chartInstance.current.timeScale().scrollToPosition(-20 - (fallbackIndex * 15), true);
     }
   };
