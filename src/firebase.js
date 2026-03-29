@@ -1,10 +1,5 @@
-import { initializeApp } from 'firebase/app'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
-
-// HACKATHON SAFETY CHECK: Logs an error if keys are missing in production
-if (!import.meta.env.VITE_FIREBASE_API_KEY) {
-  console.error("❌ Firebase API Key is missing! Check Netlify Environment Variables.");
-}
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -15,11 +10,11 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig)
-export const auth = getAuth(app)
-export const googleProvider = new GoogleAuthProvider()
+// Singleton pattern: Prevents re-initialization errors in production
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
-// Add this to ensure the provider always prompts for account selection
+export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-export default app
+export default app;
