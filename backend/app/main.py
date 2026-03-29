@@ -6,7 +6,7 @@ app = FastAPI(title="OpportunityRadar API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://your-site-name.netlify.app"], # Replace after Netlify deploy
+    allow_origins=["https://oppurtunity-radar.netlify.app/"], # Replace after Netlify deploy
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
