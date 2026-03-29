@@ -21,9 +21,6 @@ export function getPreferredVoice() {
 
 
   const preferredNames = [
-    'Google हिन्दी', 
-    'Microsoft Heera - English (India)',
-    'Microsoft Ravi - English (India)',
     'Google UK English Male',
     'Google UK English Male',
     'Microsoft George - English (United Kingdom)',
