@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from 'react'
+import { useState, createContext, useContext, useMemo } from 'react' // Added useMemo
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom'
 import { useTheme } from './context/ThemeContext'
 import Header from './components/Header'
@@ -17,9 +17,27 @@ import { DemoProvider } from './context/DemoContext'
 import ToastContainer from './components/Toast'
 import InvestmentAwarenessModal from './components/InvestmentAwarenessModal'
 
-export const AppContext = createContext()
+// 1. Create Context
+export const AppContext = createContext(null)
 
-export const useAppContext = () => useContext(AppContext)
+// 2. Hardened Hook (This prevents the "s is not defined" error)
+export const useAppContext = () => {
+  const context = useContext(AppContext)
+  if (!context) {
+    // Return a dummy object so destructuring like { portfolio } 
+    // doesn't crash the app with a ReferenceError
+    return {
+      selectedSignal: null,
+      setSelectedSignal: () => {},
+      watchlist: [],
+      addToWatchlist: () => {},
+      removeFromWatchlist: () => {},
+      portfolio: [],
+      setPortfolio: () => {}
+    }
+  }
+  return context
+}
 
 const tabs = [
   { id: '/dashboard', label: 'Opportunity Radar', icon: '🎯' },
@@ -33,13 +51,10 @@ const tabs = [
 function Dashboard() {
   const navigate = useNavigate()
   const location = useLocation()
-  const { theme, toggleTheme } = useTheme()
 
   return (
     <div className="min-h-screen flex flex-col bg-grid" style={{ background: 'var(--bg-primary)' }}>
       <Header />
-
-      {/* Navigation Tabs */}
       <nav className="glass" style={{ borderTop: 'none', borderLeft: 'none', borderRight: 'none', padding: '0 24px' }}>
         <div className="hide-scrollbar" style={{ maxWidth: 1440, margin: '0 0', display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2 }}>
           {tabs.map(tab => (
@@ -55,7 +70,6 @@ function Dashboard() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main style={{ flex: 1, maxWidth: 1440, margin: '0 auto', width: '100%', padding: '24px' }} className="dashboard-main-content">
         <Routes>
           <Route path="/" element={<OpportunityRadar />} />
@@ -66,7 +80,6 @@ function Dashboard() {
           <Route path="/market-video" element={<MarketVideo />} />
         </Routes>
       </main>
-
       <SEBIDisclaimer />
     </div>
   )
@@ -87,8 +100,19 @@ export default function App() {
     setWatchlist(prev => prev.filter(t => t !== ticker))
   }
 
+  // 3. Memoize the value to keep the reference stable for the minifier
+  const value = useMemo(() => ({
+    selectedSignal,
+    setSelectedSignal,
+    watchlist,
+    addToWatchlist,
+    removeFromWatchlist,
+    portfolio,
+    setPortfolio
+  }), [selectedSignal, watchlist, portfolio])
+
   return (
-    <AppContext.Provider value={{ selectedSignal, setSelectedSignal, watchlist, addToWatchlist, removeFromWatchlist, portfolio, setPortfolio }}>
+    <AppContext.Provider value={value}>
       <DemoProvider>
         <ToastContainer />
         <InvestmentAwarenessModal />
