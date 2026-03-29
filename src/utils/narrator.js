@@ -60,7 +60,7 @@ export function speak(text, onStart, onEnd) {
   const voice = getPreferredVoice()
   if (voice) utterance.voice = voice
 
-  utterance.rate   = 0.92   
+  utterance.rate   = 0.85   
   utterance.pitch  = 1.0
   utterance.volume = 1.0
   utterance.lang   = 'en-IN' 
