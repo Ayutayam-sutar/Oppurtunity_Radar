@@ -16,17 +16,25 @@ const suggestedQuestions = [
 ]
 
 export default function PortfolioIntelligence() {
-  const { portfolio, setPortfolio, watchlist, addToWatchlist, removeFromWatchlist } = useAppContext()
+  // 1. Get Context with a safety check
+  const context = useAppContext()
+  
+  // If context is not yet available, return null to prevent destructuring errors
+  if (!context) return null;
+
+  const { portfolio, setPortfolio, watchlist, addToWatchlist, removeFromWatchlist } = context
+
+  // 2. State definitions (Renamed 'personalizedSignals' to 'signalsData' to prevent minifier 's' conflicts)
   const [newStock, setNewStock] = useState({ ticker: '', qty: '', price: '' })
-  const [personalizedSignals, setPersonalizedSignals] = useState({ relevant: [], watchlist: [] })
+  const [signalsData, setSignalsData] = useState({ relevant: [], watchlist: [] })
   const [chatHistory, setChatHistory] = useState([])
   const [chatInput, setChatInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [alerts, setAlerts] = useState({})
 
   useEffect(() => {
-    if (portfolio.length > 0) {
-      getPortfolioSignals(portfolio).then(setPersonalizedSignals)
+    if (portfolio && portfolio.length > 0) {
+      getPortfolioSignals(portfolio).then(setSignalsData)
     }
   }, [portfolio])
 
@@ -36,7 +44,11 @@ export default function PortfolioIntelligence() {
 
   const addStock = () => {
     if (newStock.ticker) {
-      setPortfolio(prev => [...prev, { ticker: newStock.ticker.toUpperCase(), qty: parseInt(newStock.qty) || 0, avgPrice: parseFloat(newStock.price) || 0 }])
+      setPortfolio(prev => [...prev, { 
+        ticker: newStock.ticker.toUpperCase(), 
+        qty: parseInt(newStock.qty) || 0, 
+        avgPrice: parseFloat(newStock.price) || 0 
+      }])
       setNewStock({ ticker: '', qty: '', price: '' })
     }
   }
@@ -56,7 +68,7 @@ export default function PortfolioIntelligence() {
     await streamPortfolioAnalysis(
       q,
       portfolio,
-      personalizedSignals.relevant,
+      signalsData.relevant, // Updated reference
       (chunk) => {
         setIsTyping(false)
         setChatHistory(prev => {
@@ -162,15 +174,15 @@ export default function PortfolioIntelligence() {
           </div>
         </motion.div>
 
-        {/* Personalized Signals */}
-        {portfolio.length > 0 && personalizedSignals.relevant.length > 0 && (
+        {/* Personalized Signals (Using Renamed signalsData) */}
+        {portfolio.length > 0 && signalsData.relevant.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
             className="glass" style={{ borderRadius: 16, padding: 24 }}>
             <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
               <Sparkles size={18} color="var(--accent-gold)" /> Signals for Your Portfolio
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {personalizedSignals.relevant.map(s => {
+              {signalsData.relevant.map(s => {
                 const type = signalTypeMap[s.signalType]
                 return (
                   <div key={s.id} className="card-3d portfolio-signal-row" style={{ background: 'var(--bg-card)', borderRadius: 12, padding: 16, border: '1px solid var(--border-card)' }}>
@@ -184,11 +196,11 @@ export default function PortfolioIntelligence() {
                 )
               })}
             </div>
-            {personalizedSignals.watchlist.length > 0 && (
+            {signalsData.watchlist.length > 0 && (
               <>
                 <h4 style={{ fontFamily: 'var(--font-display)', fontSize: 14, fontWeight: 600, margin: '20px 0 12px', color: 'var(--text-secondary)' }}>Stocks you DON'T own but should watch</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                  {personalizedSignals.watchlist.map(s => {
+                  {signalsData.watchlist.map(s => {
                     const type = signalTypeMap[s.signalType]
                     return (
                       <div key={s.id} style={{ background: 'var(--bg-secondary)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 12, border: '1px solid var(--border-subtle)' }}>
