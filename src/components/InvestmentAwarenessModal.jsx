@@ -6,7 +6,6 @@ export default function InvestmentAwarenessModal() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Show only once per session
     const hasSeen = sessionStorage.getItem('hasSeenAwarenessModal');
     if (!hasSeen) {
       const timer = setTimeout(() => setIsOpen(true), 1500);

@@ -1,6 +1,3 @@
-"""
-Chat endpoint for Claude API — used by the Market Video script generator.
-"""
 import os
 import json
 from fastapi import APIRouter
@@ -18,7 +15,7 @@ async def chat_with_claude(request: ChatRequest):
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     
     if not api_key:
-        # Return a mock video script so the feature doesn't break without a key
+       
         return {
             "response": json.dumps({
                 "headline": "Markets Rally On Strong Signals",

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Zap } from 'lucide-react'
 
-// Human-readable signal type labels
+
 const SIGNAL_LABELS = {
   volume_surge_breakout:  'Volume Surge',
   bulk_deal_cluster:      'Bulk Deal',
@@ -16,7 +16,7 @@ const SIGNAL_LABELS = {
 }
 
 export default function ConvergenceBadge({ signal }) {
-  // Only render if 2 or more signal types are converging
+
   if (!signal.convergenceSignals || signal.convergenceSignals.length < 2) {
     return null
   }
@@ -32,10 +32,8 @@ export default function ConvergenceBadge({ signal }) {
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 400, damping: 20, delay: 0.15 }}
     >
-      {/* Pulsing glow ring behind the badge */}
+    
       <div className="convergence-glow-ring" />
-
-      {/* Badge content */}
       <div className="convergence-inner">
         <div className="convergence-header">
           <Zap size={12} className="convergence-zap" />

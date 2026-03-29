@@ -15,7 +15,7 @@ router = APIRouter()
 
 @router.post("/signup", response_model=UserResponse)
 async def signup(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> Any:
-    # Check if user exists
+  
     result = await db.execute(select(User).filter(User.email == user_in.email))
     user = result.scalars().first()
     if user:

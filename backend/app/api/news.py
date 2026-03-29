@@ -15,8 +15,7 @@ def get_market_news():
             
         root = ET.fromstring(xml_data)
         news_items = []
-        
-        # Parse RSS 2.0 format
+     
         for item in root.findall('./channel/item'):
             title = item.find('title').text if item.find('title') is not None else "No Title"
             link = item.find('link').text if item.find('link') is not None else "#"
@@ -28,7 +27,7 @@ def get_market_news():
                 "pubDate": pubDate
             })
             
-            if len(news_items) >= 15: # Limit to 15 news items for the sidebar
+            if len(news_items) >= 15: 
                 break
                 
         return {"status": "success", "news": news_items}

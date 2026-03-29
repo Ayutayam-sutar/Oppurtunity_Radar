@@ -1,7 +1,7 @@
 const now = new Date();
 const formatDate = (daysAgo) => {
   const d = new Date(now.getTime() - daysAgo * 86400000);
-  // Ensure it's a weekday for the mock data mapping
+ 
   if (d.getDay() === 0) d.setDate(d.getDate() - 2);
   if (d.getDay() === 6) d.setDate(d.getDate() - 1);
   return d.toISOString().split('T')[0];

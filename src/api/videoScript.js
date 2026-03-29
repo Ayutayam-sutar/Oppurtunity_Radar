@@ -1,14 +1,8 @@
-// --- HACKATHON DEPLOYMENT FIX ---
-// This ensures the frontend knows where the Python FastAPI Backend lives.
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
-/**
- * Calls the Python FastAPI Backend to generate a 15-second video script.
- * Returns a parsed JSON object with 3 scene narration lines + headline.
- */
+
 export async function generateVideoScript(marketData) {
   try {
-    // UPDATED: Now uses the full URL to the Render backend
     const response = await fetch(`${API_BASE_URL}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -42,27 +36,23 @@ Market data:
 
     const data = await response.json();
 
-    // Handle both response shapes from the existing /api/chat endpoint
     const raw = data.content?.[0]?.text || data.response || data.message || '';
     if (!raw) throw new Error('Empty response from Claude API');
 
-    // Strip any accidental markdown fences
     const clean = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
 
     try {
       return JSON.parse(clean);
     } catch (parseErr) {
       console.error("JSON Parse failed, trying regex recovery...");
-      // Attempt to extract JSON if Claude added conversational text
+
       const jsonMatch = clean.match(/\{[\s\S]*\}/);
       if (jsonMatch) return JSON.parse(jsonMatch[0]);
       throw parseErr;
     }
   } catch (error) {
     console.warn('[VideoScript] AI Generation failed, using template engine:', error.message);
-    
-    // --- JUDGE MODE RESILIENCE: TEMPLATE FALLBACK ---
-    // If the API is down or slow, we build a perfect script manually so the demo continues.
+   
     return {
       headline: `Market Update: Nifty Fifty hits ${marketData.nifty.toLocaleString('en-IN')}`,
       scene1: `Nifty Fifty is at ${marketData.nifty.toLocaleString('en-IN')}, moving ${marketData.niftyChange}% today while Sensex follows the trend closely.`,

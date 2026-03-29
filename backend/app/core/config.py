@@ -2,7 +2,7 @@ import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    # Pydantic will automatically look for an environment variable named DATABASE_URL
+    
     database_url: str = "sqlite+aiosqlite:///./opportunity_radar.db"
     secret_key: str = "super_secret_temporary_key_for_et_hackathon_12345"
     algorithm: str = "HS256"

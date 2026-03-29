@@ -16,7 +16,6 @@ import traceback
 
 router = APIRouter()
 
-# ─── Tracked stocks (NSE tickers → Yahoo Finance format) ─────────────────────
 TRACKED_STOCKS = {
     "TATAMOTORS":  {"yf": "TATAMOTORS.NS", "name": "Tata Motors Limited",         "sector": "Automobiles"},
     "RELIANCE":    {"yf": "RELIANCE.NS",    "name": "Reliance Industries Limited", "sector": "Energy"},
@@ -49,22 +48,17 @@ def compute_signals_for_stock(ticker: str, info: dict) -> dict | None:
         
         if df.empty or len(df) < 30:
             return None
-        
-        # Current price info
+   
         current_price = round(float(df["Close"].iloc[-1]), 2)
         prev_close = float(df["Close"].iloc[-2]) if len(df) > 1 else current_price
         price_change = round(((current_price - prev_close) / prev_close) * 100, 2)
-        
-        # ── Compute indicators ────────────────────────────────────────────
-        
-        # RSI (14-period)
+
         rsi_indicator = RSIIndicator(df["Close"], window=14)
         rsi_series = rsi_indicator.rsi()
         rsi_value = round(float(rsi_series.iloc[-1]), 1) if not rsi_series.empty else 50.0
         rsi_prev = float(rsi_series.iloc[-2]) if len(rsi_series) > 1 else rsi_value
         rsi_trend = "rising" if rsi_value > rsi_prev else ("falling" if rsi_value < rsi_prev else "flat")
-        
-        # MACD
+
         macd_indicator = MACD(df["Close"])
         macd_line = macd_indicator.macd()
         macd_signal_line = macd_indicator.macd_signal()
@@ -82,62 +76,60 @@ def compute_signals_for_stock(ticker: str, info: dict) -> dict | None:
         else:
             macd_status = "neutral"
         
-        # Bollinger Bands (20-period, 2 std dev)
+  
         bb = BollingerBands(df["Close"], window=20, window_dev=2)
         bb_lower = float(bb.bollinger_lband().iloc[-1]) if not bb.bollinger_lband().empty else current_price
         bb_upper = float(bb.bollinger_hband().iloc[-1]) if not bb.bollinger_hband().empty else current_price
         bb_width = float(bb.bollinger_wband().iloc[-1]) if not bb.bollinger_wband().empty else 0
         
-        # Volume analysis
+
         vol_current = float(df["Volume"].iloc[-1])
         vol_avg_20 = float(df["Volume"].tail(20).mean())
         vol_ratio = round(vol_current / vol_avg_20, 1) if vol_avg_20 > 0 else 1.0
         
-        # ── Determine signal type ─────────────────────────────────────────
+
         
         signal_type = None
         signal_score = 0
         win_rate = 0
         confidence = "MEDIUM"
         
-        # Priority 1: Volume Surge Breakout (volume > 2x AND price up)
+   
         if vol_ratio >= 2.0 and price_change > 0:
             signal_type = "volume_surge_breakout"
             signal_score = min(95, int(60 + vol_ratio * 10 + abs(price_change) * 3))
             win_rate = min(80, int(62 + vol_ratio * 4))
             confidence = "HIGH" if vol_ratio >= 2.5 else "MEDIUM"
-        
-        # Priority 2: RSI Oversold (RSI < 30 and trending up)
+   
         elif rsi_value < 30:
             signal_type = "rsi_oversold"
             signal_score = min(92, int(70 + (30 - rsi_value) * 2))
             win_rate = min(75, int(60 + (30 - rsi_value)))
             confidence = "HIGH" if rsi_value < 25 else "MEDIUM"
-        
-        # Priority 3: MACD Bullish Crossover
+
         elif macd_status == "bullish_cross":
             signal_type = "macd_crossover"
             signal_score = min(88, int(72 + abs(macd_val) * 100))
             win_rate = min(72, int(60 + abs(macd_val) * 50))
             confidence = "HIGH" if abs(macd_val) > 0.5 else "MEDIUM"
         
-        # Priority 4: Bollinger Breakout (price near lower band with squeeze)
+
         elif current_price <= bb_lower * 1.02 and bb_width < 0.1:
             signal_type = "bollinger_breakout"
             signal_score = min(85, int(68 + (1 - bb_width) * 20))
             win_rate = min(70, int(58 + (1 - bb_width) * 15))
             confidence = "MEDIUM"
         
-        # Priority 5: Volume uptick with positive MACD
+
         elif vol_ratio >= 1.5 and macd_status == "positive":
             signal_type = "volume_surge_breakout"
             signal_score = min(82, int(55 + vol_ratio * 8 + abs(price_change) * 2))
             win_rate = min(68, int(58 + vol_ratio * 3))
             confidence = "MEDIUM"
         
-        # No significant signal detected
+   
         if not signal_type:
-            # Still generate a low-confidence entry for portfolio display
+
             if rsi_value < 40:
                 signal_type = "rsi_oversold"
                 signal_score = max(50, int(40 + rsi_value))
@@ -151,15 +143,13 @@ def compute_signals_for_stock(ticker: str, info: dict) -> dict | None:
                 signal_score = max(45, int(50 + (bb_upper - current_price) / current_price * 100))
                 win_rate = max(48, int(52 + bb_width * 10))
         
-        # Cap values
         signal_score = max(40, min(95, signal_score))
         win_rate = max(45, min(82, win_rate))
-        
-        # ── Build the signal object (matching frontend schema) ────────────
+       
         
         now = datetime.now().astimezone()
         
-        # Determine convergence signals
+
         convergence = []
         if vol_ratio >= 1.5:
             convergence.append("volume_surge_breakout")
@@ -172,7 +162,7 @@ def compute_signals_for_stock(ticker: str, info: dict) -> dict | None:
         
         convergence_win_rate = min(88, win_rate + len(convergence) * 4) if len(convergence) > 1 else None
         
-        # Build narration
+  
         narration = _build_narration(ticker, info["name"], signal_type, current_price, rsi_value, 
                                       macd_status, vol_ratio, price_change, bb_lower, bb_upper)
         
@@ -252,9 +242,6 @@ def _build_narration(ticker, name, signal_type, price, rsi, macd, vol_ratio, pri
     else:
         return f"{base}. Technical indicators show RSI at {rsi} ({('rising' if rsi > 50 else 'falling')}), MACD is {macd}, and volume is at {vol_ratio}× the 20-day average."
 
-
-# ─── API Endpoints ────────────────────────────────────────────────────────────
-
 @router.get("/indices")
 def get_market_indices():
     """Fetch live Nifty 50 and Sensex data."""
@@ -312,7 +299,6 @@ def get_live_signals():
         if signal:
             signals.append(signal)
     
-    # Sort by signal score descending
     signals.sort(key=lambda s: s["signalScore"], reverse=True)
     
     return {"status": "success", "signals": signals, "count": len(signals)}

@@ -15,7 +15,7 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme)
 ) -> User:
     try:
-        # DECODE: PyJWT uses 'algorithms' (plural) as an argument
+  
         payload = jwt.decode(
             token, 
             settings.secret_key, 
@@ -28,16 +28,14 @@ async def get_current_user(
                 status_code=status.HTTP_401_UNAUTHORIZED, 
                 detail="Invalid auth credentials"
             )
-            
-    # PyJWT specific errors
+
     except (jwt.PyJWTError, ValidationError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    # Rest of your database logic remains exactly the same
+  
     result = await db.execute(select(User).filter(User.id == user_id))
     user = result.scalars().first()
     

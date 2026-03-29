@@ -1,14 +1,9 @@
 import { mockSignals, backtestResults, showcaseSignals, generateOHLCVData, radarChartData, sectorHeatmapData } from '../data/mockSignals';
-
-// --- HACKATHON DEPLOYMENT FIX ---
-// This constant ensures the frontend knows where the Python Backend lives.
-// On Local: It uses http://localhost:8000
-// On Netlify: It uses your Render URL (defined in Netlify Env Vars)
 export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 export const getLiveSignals = async () => {
   try {
-    // UPDATED: Now uses the full URL to the Render backend
+   
     const res = await fetch(`${API_BASE_URL}/api/market/signals`, { 
       signal: AbortSignal.timeout(30000) 
     });
@@ -17,9 +12,9 @@ export const getLiveSignals = async () => {
     
     const data = await res.json();
     
-    // Adjusting to match common FastAPI response shapes
+  
     if (data.status === 'success' || (data && !data.error)) {
-      const signals = data.signals || data; // Flexible check for list or object
+      const signals = data.signals || data; 
       console.log(`[Signals] Loaded LIVE signals from ${API_BASE_URL}`);
       return signals;
     }
@@ -28,7 +23,6 @@ export const getLiveSignals = async () => {
   } catch (error) {
     console.warn('[Signals] Live signal fetch failed, using mock data:', error.message);
     
-    // Keep your team's toast logic
     window.dispatchEvent(new CustomEvent('show-toast', { 
       detail: { 
         message: 'Live signal computation in progress. Showing cached data.', 
@@ -39,7 +33,6 @@ export const getLiveSignals = async () => {
   }
 };
 
-// --- REST OF YOUR TEAM'S LOGIC (PRESERVED) ---
 
 export const getStockChart = (ticker, timeframe = '3m') => {
   const days = { '1w': 7, '1m': 30, '3m': 90, '6m': 180, '1y': 365 }[timeframe] || 90;
@@ -65,9 +58,6 @@ const aiResponses = {
 
 export const askPortfolioQuestion = async (question) => {
   const q = question.toLowerCase();
-  
-  // HACKATHON TIP: You can easily switch this to a real fetch later 
-  // by using `${API_BASE_URL}/api/ai/chat`
   
   let response = aiResponses.default;
   if (q.includes('hdfc') || q.includes('add')) response = aiResponses.hdfc;

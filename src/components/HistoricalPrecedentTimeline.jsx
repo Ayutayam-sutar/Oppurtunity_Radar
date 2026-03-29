@@ -71,8 +71,6 @@ export function HistoricalPrecedentTimeline({ signal }) {
           ))}
         </div>
       </div>
-
-      {/* Summary line */}
       <p style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 12, fontStyle: 'italic', lineHeight: 1.5 }}>
         Win rate for <span style={{ color: 'var(--accent-gold)' }}>{typeLabel}</span> on{' '}
         <span style={{ color: 'var(--accent-gold)' }}>{signal.ticker}</span> specifically — 

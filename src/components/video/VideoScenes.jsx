@@ -1,8 +1,4 @@
 import { useEffect, useState } from 'react'
-
-// ─── Inject CSS animations once ──────────────────────────────────────────────
-// Uses a style tag so we don't need any extra CSS files or Tailwind classes
-
 const VIDEO_CSS = `
   @keyframes vid-countup {
     from { opacity: 0; transform: translateY(16px); }
@@ -38,7 +34,6 @@ function injectVideoCSS() {
   document.head.appendChild(style)
 }
 
-// ─── Shared layout wrapper used by all 3 scenes ───────────────────────────────
 
 function SceneWrapper({ children, active }) {
   useEffect(() => { injectVideoCSS() }, [])
@@ -105,10 +100,8 @@ function SceneWrapper({ children, active }) {
   )
 }
 
-// ─── SCENE 1: Nifty 50 + Sensex overview ─────────────────────────────────────
-
 export function Scene1({ data, active }) {
-  // Animate Nifty counter from (value - 180) → value over 1.5 seconds
+ 
   const [displayValue, setDisplayValue] = useState(data.nifty - 180)
 
   useEffect(() => {
@@ -121,7 +114,7 @@ export function Scene1({ data, active }) {
     const frame = () => {
       const elapsed = Date.now() - start
       const progress = Math.min(elapsed / duration, 1)
-      // Ease-out curve
+  
       const eased = 1 - Math.pow(1 - progress, 3)
       setDisplayValue(Math.round(startVal + (endVal - startVal) * eased))
       if (progress < 1) requestAnimationFrame(frame)
@@ -133,7 +126,7 @@ export function Scene1({ data, active }) {
 
   return (
     <SceneWrapper active={active}>
-      {/* Scene label bottom-left */}
+   
       <div style={{
         position: 'absolute', bottom: 18, left: 22,
         color: '#3A3A52', fontSize: 10,
@@ -202,9 +195,6 @@ export function Scene1({ data, active }) {
     </SceneWrapper>
   )
 }
-
-// ─── SCENE 2: Top signal spotlight ───────────────────────────────────────────
-
 const SIGNAL_COLORS = {
   volume_surge_breakout: '#6BCB77',
   rsi_oversold:          '#FF6B6B',
@@ -238,7 +228,7 @@ export function Scene2({ data, active }) {
         width: '78%',
         animation: active ? 'vid-slidein 0.4s ease-out both' : 'none',
       }}>
-        {/* Signal type badge */}
+     
         <div style={{
           display: 'inline-block',
           background: `${sigColor}1A`,
@@ -310,8 +300,6 @@ export function Scene2({ data, active }) {
   )
 }
 
-// ─── SCENE 3: FII/DII flows + closing ────────────────────────────────────────
-
 export function Scene3({ data, active }) {
   // Animate bars growing from 0 to full height
   const [progress, setProgress] = useState(0)
@@ -324,7 +312,7 @@ export function Scene3({ data, active }) {
     const frame = () => {
       const elapsed = Date.now() - start
       const p = Math.min(elapsed / duration, 1)
-      setProgress(1 - Math.pow(1 - p, 2)) // ease-out quad
+      setProgress(1 - Math.pow(1 - p, 2)) 
       if (p < 1) requestAnimationFrame(frame)
     }
     requestAnimationFrame(frame)

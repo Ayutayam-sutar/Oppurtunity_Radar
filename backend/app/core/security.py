@@ -1,10 +1,9 @@
 from typing import Optional
 from datetime import datetime, timedelta, timezone
 import jwt 
-from passlib.context import CryptContext # <-- THE MISSING BRICK
+from passlib.context import CryptContext 
 from app.core.config import settings
 
-# Initialize the Crypto Context for password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

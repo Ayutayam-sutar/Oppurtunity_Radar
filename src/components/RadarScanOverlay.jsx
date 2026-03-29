@@ -6,18 +6,16 @@ export function RadarScanOverlay({ onComplete }) {
   const [signalsFound, setSignalsFound] = useState(0)
   const [detectedItems, setDetectedItems] = useState([])
 
-  // Tick stocksScanned from 0 → 500 over 2 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setStocksScanned(prev => {
         if (prev >= 500) { clearInterval(interval); return 500 }
-        return prev + Math.floor(Math.random() * 18) + 8 // variable speed feels real
+        return prev + Math.floor(Math.random() * 18) + 8 
       })
     }, 40)
     return () => clearInterval(interval)
   }, [])
 
-  // Pop in detected signals at random points during the scan
   const detectionTimings = [
     { delay: 400,  ticker: 'TATAMOTORS', signal: 'Volume Surge + Bulk Deal' },
     { delay: 780,  ticker: 'RELIANCE',   signal: 'Earnings Surprise +18%'   },
@@ -33,7 +31,7 @@ export function RadarScanOverlay({ onComplete }) {
         setSignalsFound(prev => prev + 1)
       }, delay)
     })
-    // Complete callback
+  
     setTimeout(onComplete, 2600)
   }, [onComplete])
 
@@ -54,7 +52,6 @@ export function RadarScanOverlay({ onComplete }) {
         `}
       </style>
       
-      {/* Animated radar circle overlaying background */}
       <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.15, pointerEvents: 'none' }}>
         <div style={{ width: 600, height: 600, borderRadius: '50%', border: '1px solid var(--accent-gold)' }} />
         <div style={{

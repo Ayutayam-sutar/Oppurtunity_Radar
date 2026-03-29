@@ -28,11 +28,11 @@ export function DemoProvider({ children }) {
     }, 4000)
   }, [])
 
-  // Demo Reset functionality
+ 
   const resetDemoState = useCallback(() => {
     setSelectedSignal(null)
     setWatchlist([])
-    // We can load demo portfolio 1:
+ 
     setPortfolio([
       { ticker: 'HDFCBANK', quantity: 150, purchasePrice: 1520, currentPrice: 1680.45 },
       { ticker: 'RELIANCE', quantity: 50, purchasePrice: 2840, currentPrice: 2954.20 },
@@ -40,7 +40,7 @@ export function DemoProvider({ children }) {
     ])
     window.scrollTo({ top: 0, behavior: 'smooth' })
     
-    // Dispatch event so components like ScanAnimation can restart
+   
     window.dispatchEvent(new Event('demo-reset'))
     triggerScan()
     
@@ -58,7 +58,7 @@ export function DemoProvider({ children }) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [resetDemoState])
 
-  // Global toast listener
+
   useEffect(() => {
     const handleGlobalToast = (e) => {
       if (e.detail && e.detail.message) {
@@ -69,7 +69,6 @@ export function DemoProvider({ children }) {
     return () => window.removeEventListener('show-toast', handleGlobalToast)
   }, [showToast])
 
-  // Mock Toast interval in Judge Mode
   useEffect(() => {
     if (!isJudgeMode) return
     
@@ -80,7 +79,6 @@ export function DemoProvider({ children }) {
     return () => clearInterval(interval)
   }, [isJudgeMode, showToast])
 
-  // Hide initial scan if moving away from home
   useEffect(() => {
     if (location.pathname !== '/dashboard') {
       setScanActive(false)
